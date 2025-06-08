@@ -181,8 +181,8 @@ func (a *Api) GetPolicy(name string) (*data.Policy, error) {
 //	for _, policy := range policies {
 //	    log.Printf("Found policy: %+v", policy)
 //	}
-func (a *Api) ListPolicies() (*[]data.Policy, error) {
-	return acl.ListPolicies(a.source)
+func (a *Api) ListPolicies(spiffeId string) (*[]data.Policy, error) {
+	return acl.ListPolicies(a.source, spiffeId)
 }
 
 // DeleteSecretVersions deletes specified versions of a secret at the given

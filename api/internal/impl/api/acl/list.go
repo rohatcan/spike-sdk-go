@@ -23,6 +23,7 @@ import (
 // The function takes:
 //   - source: A pointer to a workloadapi.X509Source for establishing mTLS
 //     connection
+//   - spiffeId: Optional SPIFFE ID pattern to filter policies
 //
 // The function returns:
 //   - (*[]data.Policy, nil) containing all policies if successful
@@ -62,8 +63,10 @@ import (
 //	for _, policy := range policies {
 //	    log.Printf("Found policy: %+v", policy)
 //	}
-func ListPolicies(source *workloadapi.X509Source) (*[]data.Policy, error) {
-	r := reqres.PolicyListRequest{}
+func ListPolicies(source *workloadapi.X509Source, spiffeId string) (*[]data.Policy, error) {
+	r := reqres.PolicyListRequest{
+		SpiffeId: spiffeId,
+	}
 	mr, err := json.Marshal(r)
 	if err != nil {
 		return nil, errors.Join(
