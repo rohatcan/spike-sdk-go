@@ -23,7 +23,6 @@ import (
 // The function takes:
 //   - source: A pointer to a workloadapi.X509Source for establishing mTLS
 //     connection
-//   - spiffeId: Optional SPIFFE ID pattern to filter policies
 //
 // The function returns:
 //   - (*[]data.Policy, nil) containing all policies if successful
@@ -63,10 +62,8 @@ import (
 //	for _, policy := range policies {
 //	    log.Printf("Found policy: %+v", policy)
 //	}
-func ListPolicies(source *workloadapi.X509Source, spiffeId string) (*[]data.Policy, error) {
-	r := reqres.PolicyListRequest{
-		SpiffeId: spiffeId,
-	}
+func ListPolicies(source *workloadapi.X509Source) (*[]data.Policy, error) {
+	r := reqres.PolicyListRequest{}
 	mr, err := json.Marshal(r)
 	if err != nil {
 		return nil, errors.Join(
@@ -95,6 +92,48 @@ func ListPolicies(source *workloadapi.X509Source, spiffeId string) (*[]data.Poli
 	if err != nil {
 		return nil, errors.Join(
 			errors.New("listPolicies: Problem parsing response body"),
+			err,
+		)
+	}
+	if res.Err != "" {
+		return nil, errors.New(string(res.Err))
+	}
+
+	return &res.Policies, nil
+}
+
+func ListPoliciesBySpiffeId(source *workloadapi.X509Source, spiffeId string) (*[]data.Policy, error) {
+	r := reqres.PolicyListRequest{
+		Filters: map[string]interface{}{"spiffeId": spiffeId},
+	}
+	mr, err := json.Marshal(r)
+	if err != nil {
+		return nil, errors.Join(
+			errors.New(
+				"listPoliciesBySpiffeId: I am having problem generating the payload",
+			),
+			err,
+		)
+	}
+
+	client, err := net.CreateMtlsClient(source)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := net.Post(client, url.PolicyListBySpiffeId(), mr)
+	if err != nil {
+		if errors.Is(err, net.ErrNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	var res reqres.PolicyListResponse
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		return nil, errors.Join(
+			errors.New("listPoliciesBySpiffeId: Problem parsing response body"),
 			err,
 		)
 	}
