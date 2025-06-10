@@ -101,3 +101,45 @@ func ListPolicies(source *workloadapi.X509Source) (*[]data.Policy, error) {
 
 	return &res.Policies, nil
 }
+
+func ListPoliciesBySpiffeId(source *workloadapi.X509Source, spiffeId string) (*[]data.Policy, error) {
+	r := reqres.PolicyListRequest{
+		Filters: map[string]interface{}{"spiffeId": spiffeId},
+	}
+	mr, err := json.Marshal(r)
+	if err != nil {
+		return nil, errors.Join(
+			errors.New(
+				"listPoliciesBySpiffeId: I am having problem generating the payload",
+			),
+			err,
+		)
+	}
+
+	client, err := net.CreateMtlsClient(source)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := net.Post(client, url.PolicyListBySpiffeId(), mr)
+	if err != nil {
+		if errors.Is(err, net.ErrNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	var res reqres.PolicyListResponse
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		return nil, errors.Join(
+			errors.New("listPoliciesBySpiffeId: Problem parsing response body"),
+			err,
+		)
+	}
+	if res.Err != "" {
+		return nil, errors.New(string(res.Err))
+	}
+
+	return &res.Policies, nil
+}

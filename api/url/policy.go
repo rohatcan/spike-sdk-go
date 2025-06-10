@@ -30,6 +30,17 @@ func PolicyList() string {
 	return u + "?" + params.Encode()
 }
 
+// PolicyListBySpiffeId returns the URL for listing policies by SPIFFE ID.
+func PolicyListBySpiffeId() string {
+	u, _ := url.JoinPath(
+		env.NexusApiRoot(),
+		string(SpikeNexusUrlPolicy),
+	)
+	params := url.Values{}
+	params.Add(KeyApiAction, string(ActionListBySpiffeId))
+	return u + "?" + params.Encode()
+}
+
 // PolicyDelete returns the URL for deleting a policy.
 func PolicyDelete() string {
 	u, _ := url.JoinPath(

@@ -13,6 +13,7 @@ const ActionGet ApiAction = "get"
 const ActionDelete ApiAction = "delete"
 const ActionUndelete ApiAction = "undelete"
 const ActionList ApiAction = "list"
+const ActionListBySpiffeId ApiAction = "listBySpiffeId"
 const ActionDefault ApiAction = ""
 const ActionRead ApiAction = "read"
 

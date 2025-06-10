@@ -44,7 +44,9 @@ type PolicyDeleteResponse struct {
 }
 
 // PolicyListRequest to list policies.
-type PolicyListRequest struct{}
+type PolicyListRequest struct {
+	Filters map[string]interface{} `json:"filters,omitempty"`
+}
 
 // PolicyListResponse to list policies.
 type PolicyListResponse struct {

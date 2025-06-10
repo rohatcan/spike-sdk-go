@@ -162,7 +162,7 @@ func (a *Api) GetPolicy(name string) (*data.Policy, error) {
 //   - Marshaling the policy list request
 //   - Creating the mTLS client
 //   - Making the HTTP POST request (except for not found cases)
-//   - Unmarshaling the response
+//   - Unmarshalling the response
 //   - Server-side policy listing (indicated in the response)
 //
 // Example usage:
@@ -183,6 +183,42 @@ func (a *Api) GetPolicy(name string) (*data.Policy, error) {
 //	}
 func (a *Api) ListPolicies() (*[]data.Policy, error) {
 	return acl.ListPolicies(a.source)
+}
+
+// ListPoliciesBySpiffeId retrieves all policies that match a specific SPIFFE ID.
+//
+// The function takes the following parameter:
+//   - spiffeId string: The SPIFFE ID to filter policies by
+//
+// The function returns:
+//   - (*[]data.Policy, nil) containing all matching policies if successful
+//   - (nil, nil) if no policies match the SPIFFE ID
+//   - (nil, error) if an error occurs during the operation
+//
+// Note: The returned slice pointer should be dereferenced before use:
+//
+//	policies := *result
+//
+// Errors can occur during:
+//   - Marshaling the policy list request
+//   - Creating the mTLS client
+//   - Making the HTTP POST request (except for not found cases)
+//   - Unmarshalling the response
+//   - Server-side policy listing (indicated in the response)
+//
+// Example usage:
+//
+//	policies, err := api.ListPoliciesBySpiffeId("spiffe://example.org/service/*")
+//	if err != nil {
+//	    log.Printf("Error listing policies by SPIFFE ID: %v", err)
+//	    return
+//	}
+//	if policies == nil {
+//	    log.Printf("No policies found for SPIFFE ID")
+//	    return
+//	}
+func (a *Api) ListPoliciesBySpiffeId(spiffeId string) (*[]data.Policy, error) {
+	return acl.ListPoliciesBySpiffeId(a.source, spiffeId)
 }
 
 // DeleteSecretVersions deletes specified versions of a secret at the given
